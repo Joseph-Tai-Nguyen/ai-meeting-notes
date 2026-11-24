@@ -1,0 +1,15 @@
+# Runtime dependencies (mirrors pyproject.toml). Preferred install:
+#   pip install -e ".[audio,vosk]"        # + whisper / calendar / desktop / macos / windows as needed
+fastapi>=0.110
+uvicorn[standard]>=0.27
+numpy>=1.26
+soundcard>=0.4.3
+vosk>=0.3.45
+# Optional:
+# faster-whisper>=1.0                # Whisper engine
+# icalendar>=5                       # calendar recurring events
+# recurring-ical-events>=2
+# pywebview>=5                       # native window
+# pythonnet>=3.0                     # Windows built-in speech engine
+# pyobjc-framework-Speech>=10        # macOS built-in speech engine
+# pyobjc-framework-AVFoundation>=10

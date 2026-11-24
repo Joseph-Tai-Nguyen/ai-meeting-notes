@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Meeting Notes</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">AI Meeting Notes</div>
+    <button id="newMeeting" class="primary wide">+ New meeting</button>
+    <input id="search" type="search" placeholder="Search all meetings…" autocomplete="off">
+    <section id="calendarBox" class="cal hidden">
+      <h4>Upcoming</h4>
+      <ul id="calendarList"></ul>
+    </section>
+    <h4>Meetings</h4>
+    <ul id="meetingList" class="meeting-list"></ul>
+    <div class="sidebar-foot">
+      <button id="askAllBtn" class="ghost">Ask across meetings</button>
+      <button id="settingsBtn" class="ghost">Settings &amp; backup</button>
+    </div>
+  </aside>
+
+  <main id="main">
+    <div id="empty" class="empty">
+      <h1>Live transcription, on your computer.</h1>
+      <p>Create a meeting, pick <b>Online meeting</b> (Teams, Zoom, Meet… with speakers or headphones) or
+        <b>In-person</b>, and press Start. Transcription runs offline; AI summaries are optional and only run when you ask.</p>
+      <button id="newMeeting2" class="primary">+ New meeting</button>
+    </div>
+
+    <div id="meetingView" class="hidden">
+      <header class="m-head">
+        <input id="title" class="title" spellcheck="false">
+        <div class="meta"><span id="metaDate"></span> · <span id="metaDur"></span> · <span id="metaMode"></span>
+          <span class="attendees">· Attendees: <input id="attendees" placeholder="add names, comma separated"></span></div>
+      </header>
+
+      <section class="recorder">
+        <select id="mode" title="Audio source">
+          <option value="online">Online meeting (mic + computer audio)</option>
+          <option value="in_person">In-person (microphone)</option>
+          <option value="system">Computer audio only</option>
+        </select>
+        <select id="engine" title="Transcription engine"></select>
+        <select id="language" title="Language"></select>
+        <button id="startBtn" class="record">● Start</button>
+        <button id="pauseBtn" class="hidden">❚❚ Pause</button>
+        <button id="resumeBtn" class="hidden">▶ Resume</button>
+        <button id="stopBtn" class="hidden danger">■ Stop</button>
+        <button id="highlightBtn" class="hidden" title="Mark this moment">★ Highlight</button>
+        <span id="timer" class="timer">00:00:00</span>
+        <span class="levels"><span class="lvl" data-src="mic" title="Microphone"><i></i></span><span class="lvl" data-src="system" title="Computer audio"><i></i></span></span>
+      </section>
+      <div id="engineNote" class="consent warn hidden"></div>
+      <div id="consent" class="consent hidden">
+        Let everyone know this meeting is being transcribed. <label><input type="checkbox" id="consentChk"> Participants were informed</label>
+      </div>
+      <div id="errors" class="errors hidden"></div>
+
+      <nav class="tabs">
+        <button data-tab="summary" class="active">Summary</button>
+        <button data-tab="notes">Notes</button>
+        <button data-tab="transcript">Transcript</button>
+        <button data-tab="ask">Ask</button>
+        <span class="spacer"></span>
+        <select id="exportFmt"><option value="md">Markdown</option><option value="txt">Text</option><option value="srt">Subtitles (.srt)</option><option value="json">JSON</option></select>
+        <button id="exportBtn" class="ghost">Export</button>
+        <button id="deleteBtn" class="ghost danger-text">Delete</button>
+      </nav>
+
+      <section data-panel="summary" class="panel">
+        <div class="ai-bar">
+          <select id="aiKind"></select>
+          <select id="aiTemplate"></select>
+          <input id="docType" class="hidden" placeholder="e.g. PRD, proposal, strategy doc">
+          <select id="aiProvider"></select>
+          <button id="aiRun" class="primary">Generate</button>
+          <span id="aiStatus" class="muted"></span>
+        </div>
+        <div id="analyses"></div>
+      </section>
+
+      <section data-panel="notes" class="panel hidden">
+        <textarea id="notes" placeholder="Type your own notes during the meeting. They are saved automatically and used by AI summaries."></textarea>
+        <div class="muted small" id="notesState"></div>
+      </section>
+
+      <section data-panel="transcript" class="panel hidden">
+        <div class="t-tools">
+          <span class="muted small">Click a line to edit. Rename a speaker:</span>
+          <select id="speakerOld"></select> → <input id="speakerNew" placeholder="new name"><button id="renameBtn" class="ghost">Rename</button>
+          <button id="copyTranscript" class="ghost">Copy</button>
+        </div>
+        <div id="transcript" class="transcript"></div>
+        <div id="partials" class="partials"></div>
+      </section>
+
+      <section data-panel="ask" class="panel hidden">
+        <div class="ask">
+          <input id="askInput" placeholder="Ask about this meeting, e.g. What did we decide about the launch date?">
+          <button id="askBtn" class="primary">Ask</button>
+        </div>
+        <div id="askOut" class="md"></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<dialog id="settingsDlg">
+  <form method="dialog" class="settings">
+    <h2>Settings</h2>
+    <fieldset>
+      <legend>Transcription (offline)</legend>
+      <label>Default engine <select id="sEngine"></select></label>
+      <label>Default language <select id="sLanguage"></select></label>
+      <label>Microphone <select id="sMic"></select></label>
+      <label>Computer-audio device <select id="sSystem"></select></label>
+      <p class="muted small" id="sDeviceNote"></p>
+      <label>Whisper model <input id="sWhisper" placeholder="small"></label>
+      <label>Labels: me / others / room
+        <span class="row"><input id="sMe"><input id="sOthers"><input id="sRoom"></span></label>
+    </fieldset>
+    <fieldset>
+      <legend>AI analysis (optional)</legend>
+      <label>Provider order (first available wins)
+        <input id="sOrder" placeholder="gemini_api, gemini_cli, claude_code"></label>
+      <label>Gemini API model <input id="sGeminiModel"></label>
+      <label>Gemini CLI model <input id="sGeminiCli" placeholder="default"></label>
+      <label>Claude Code model <input id="sClaude" placeholder="default"></label>
+      <label>Output language <input id="sOutLang" placeholder="blank = meeting language"></label>
+      <div id="sProviders" class="small"></div>
+    </fieldset>
+    <fieldset>
+      <legend>Calendar (read-only ICS links)</legend>
+      <textarea id="sIcs" rows="3" placeholder="One ICS URL or file path per line (Google Calendar secret iCal address, Outlook published calendar)"></textarea>
+      <label><input type="checkbox" id="sConsent"> Show consent reminder when recording</label>
+    </fieldset>
+    <fieldset>
+      <legend>Data &amp; backup</legend>
+      <p class="small">Data folder: <code id="sDataDir"></code></p>
+      <button type="button" id="backupBtn" class="ghost">Download backup (.zip)</button>
+      <label class="file-btn ghost">Restore backup… <input type="file" id="restoreFile" accept=".zip" hidden></label>
+      <span id="restoreState" class="small muted"></span>
+    </fieldset>
+    <menu><button value="cancel" class="ghost">Close</button><button id="saveSettings" value="default" class="primary">Save</button></menu>
+  </form>
+</dialog>
+
+<dialog id="askAllDlg">
+  <form method="dialog" class="settings">
+    <h2>Ask across all meetings</h2>
+    <div class="ask"><input id="askAllInput" placeholder="e.g. When did we last discuss the budget?"><button type="button" id="askAllRun" class="primary">Ask</button></div>
+    <div id="askAllOut" class="md"></div>
+    <menu><button value="cancel" class="ghost">Close</button></menu>
+  </form>
+</dialog>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

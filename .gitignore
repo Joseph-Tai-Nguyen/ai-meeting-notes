@@ -1,0 +1,48 @@
+# --- secrets -------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+credentials*.json
+
+# --- user data (meeting transcripts are private) -----------------------
+data/
+models/
+backups/
+*.backup.zip
+ai-meeting-notes-backup-*.zip
+settings.restored.json
+
+# --- audio / recordings (the app never stores audio; keep it that way) --
+*.wav
+*.mp3
+*.m4a
+*.flac
+*.ogg
+!tests/fixtures/*.wav
+
+# --- Python ------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+*.spec.bak
+
+# --- tools / editors ---------------------------------------------------
+.claude/settings.local.json
+.gemini/settings.local.json
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+.DS_Store
+Thumbs.db

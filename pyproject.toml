@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-meeting-notes"
+version = "0.1.0"
+description = "Local-first live meeting transcription and notes for Windows and macOS, with optional Gemini / Claude Code analysis."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "GPL-3.0-or-later"
+dependencies = [
+  "fastapi>=0.110",
+  "uvicorn[standard]>=0.27",
+  "numpy>=1.26",
+]
+
+[project.optional-dependencies]
+# Audio capture: microphones everywhere, speaker/headphone loopback on Windows.
+audio = ["soundcard>=0.4.3"]
+# Offline speech engines (pick one or more).
+vosk = ["vosk>=0.3.45"]
+whisper = ["faster-whisper>=1.0"]
+macos = [
+  "pyobjc-framework-Speech>=10; sys_platform == 'darwin'",
+  "pyobjc-framework-AVFoundation>=10; sys_platform == 'darwin'",
+]
+windows = ["pythonnet>=3.0; sys_platform == 'win32'"]
+# Calendar: full recurring-event support for ICS feeds.
+calendar = ["icalendar>=5", "recurring-ical-events>=2"]
+# Native desktop window instead of a browser tab.
+desktop = ["pywebview>=5"]
+# Everything a typical user needs.
+all = ["ai-meeting-notes[audio,vosk,calendar]"]
+dev = ["pytest>=8", "httpx>=0.27", "ruff>=0.5"]
+
+[project.scripts]
+meeting-notes = "meeting_notes.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+meeting_notes = ["web/*", "prompts/*.md", "prompts/*/*.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 130
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501", "B027"]  # B027: optional no-op hooks on ABCs are intentional
