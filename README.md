@@ -15,7 +15,7 @@ inspired by Notion AI Meeting Notes.
 - **AI analysis afterwards, only when you ask.** Summaries in several templates,
   action items, decisions, follow-up email, a draft PRD or proposal, Q&A on one
   meeting or across all meetings. It uses **Gemini** (your Google AI plan through the
-  Gemini CLI, or a Gemini API key) and falls back to **Claude Code**.
+  Antigravity CLI `agy`, or a Gemini API key) and falls back to **Claude Code**.
 - **Plain text storage.** JSON, JSONL and Markdown files in one folder per meeting. Export as
   Markdown, text, SRT subtitles or JSON, and back everything up as a zip. Audio is never saved.
 
@@ -94,7 +94,7 @@ Tried in order, and the next one is used if a provider is missing or fails. Chan
 | Provider | Setup |
 |---|---|
 | `gemini_api` | `GEMINI_API_KEY=...` in `.env` ([AI Studio key](https://aistudio.google.com/apikey)) |
-| `gemini_cli` | `npm install -g @google/gemini-cli`, run `gemini` once and sign in with the Google account that has your Google AI plan |
+| `agy` | Install [Antigravity CLI](https://antigravity.google) (`irm https://antigravity.google/cli/install.ps1 \| iex` on Windows), run `agy` once and sign in with the Google account that has your Google AI plan |
 | `claude_code` | Install [Claude Code](https://docs.claude.com/en/docs/claude-code) and sign in (`claude`) |
 
 Only text (transcript, notes and title) is sent to the provider you choose, and only when you press Generate or Ask.
@@ -107,7 +107,7 @@ meeting-notes doctor                  check audio devices, engines, AI providers
 meeting-notes record --mode online    live transcription in the terminal (Ctrl+C stops)
 meeting-notes transcribe call.wav     transcribe a .wav recording
 meeting-notes list
-meeting-notes analyze <id> --kind summary --template standup [--provider gemini_cli]
+meeting-notes analyze <id> --kind summary --template standup [--provider agy]
 meeting-notes ask "What did we decide about pricing?" [--meeting <id>]
 meeting-notes export <id> --format md|txt|srt|json -o file
 meeting-notes backup -o backup.zip  /  meeting-notes restore backup.zip

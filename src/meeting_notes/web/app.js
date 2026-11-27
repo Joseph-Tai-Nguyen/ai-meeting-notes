@@ -141,7 +141,7 @@ function renderAnalyses() {
       <div class="a-head"><b>${esc(names[k] || k)}</b><span>${esc(meta[k]?.provider || "")} ${esc(meta[k]?.model || "")} · ${esc(fmtDate(meta[k]?.created_at))}
       <button class="ghost small copy" data-kind="${esc(k)}">Copy</button></span></div><div class="md">${md(a[k])}</div></article>`).join("")
     : `<p class="muted">No AI notes yet. Transcription works without AI; when the meeting is over, choose what to generate above.
-       ${S.status.ai_providers.some((p) => p.available) ? "" : "<br><b>No AI provider is set up</b> - add GEMINI_API_KEY to .env, sign in to the Gemini CLI, or install Claude Code."}</p>`;
+       ${S.status.ai_providers.some((p) => p.available) ? "" : "<br><b>No AI provider is set up</b> - add GEMINI_API_KEY to .env, sign in to the Antigravity CLI (agy), or install Claude Code."}</p>`;
   $$("#analyses .copy").forEach((b) => b.onclick = () => navigator.clipboard.writeText(a[b.dataset.kind]));
 }
 function updateEngineNote() {
@@ -275,7 +275,7 @@ async function openSettings() {
   fillSelect($("#sSystem"), [["", dev.platform === "darwin" ? "Choose a loopback device (BlackHole…)" : "Default output (speakers / headphones)"], ...dev.system.map((d) => [d.name, d.name + (d.virtual ? " (virtual)" : "")])], t.system_device);
   $("#sDeviceNote").textContent = dev.available ? dev.note : dev.error;
   $("#sWhisper").value = t.whisper_model; $("#sMe").value = t.me_label; $("#sOthers").value = t.others_label; $("#sRoom").value = t.room_label;
-  $("#sOrder").value = a.provider_order.join(", "); $("#sGeminiModel").value = a.gemini_model; $("#sGeminiCli").value = a.gemini_cli_model;
+  $("#sOrder").value = a.provider_order.join(", "); $("#sGeminiModel").value = a.gemini_model; $("#sAgy").value = a.agy_model;
   $("#sClaude").value = a.claude_model; $("#sOutLang").value = a.output_language;
   $("#sProviders").innerHTML = S.status.ai_providers.map((p) => `<div class="${p.available ? "prov-ok" : "prov-no"}">${p.available ? "✓" : "○"} ${esc(p.label)} - ${esc(p.reason)}</div>`).join("");
   $("#sIcs").value = s.calendar_ics.join("\n"); $("#sConsent").checked = s.consent_reminder;
@@ -287,7 +287,7 @@ async function saveSettings() {
     transcription: { engine: $("#sEngine").value, language: $("#sLanguage").value, mic_device: $("#sMic").value, system_device: $("#sSystem").value,
       whisper_model: $("#sWhisper").value.trim() || "small", me_label: $("#sMe").value.trim() || "Me", others_label: $("#sOthers").value.trim() || "Others", room_label: $("#sRoom").value.trim() || "Speaker" },
     ai: { provider_order: $("#sOrder").value.split(",").map((x) => x.trim()).filter(Boolean), gemini_model: $("#sGeminiModel").value.trim(),
-      gemini_cli_model: $("#sGeminiCli").value.trim(), claude_model: $("#sClaude").value.trim(), output_language: $("#sOutLang").value.trim() },
+      agy_model: $("#sAgy").value.trim(), claude_model: $("#sClaude").value.trim(), output_language: $("#sOutLang").value.trim() },
     calendar_ics: $("#sIcs").value.split("\n").map((x) => x.trim()).filter(Boolean),
     consent_reminder: $("#sConsent").checked,
   };

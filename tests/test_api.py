@@ -18,7 +18,7 @@ def client(ctx):
 def test_status_and_settings(client):
     st = client.get("/api/status").json()
     assert any(e["name"] == "mock" and e["available"] for e in st["engines"])
-    assert {p["name"] for p in st["ai_providers"]} == {"gemini_api", "gemini_cli", "claude_code"}
+    assert {p["name"] for p in st["ai_providers"]} == {"gemini_api", "agy", "claude_code"}
     s = client.put("/api/settings", json={"transcription": {"language": "vi"}}, headers=H).json()
     assert s["transcription"]["language"] == "vi" and s["transcription"]["engine"] == "vosk"
 

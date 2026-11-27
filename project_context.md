@@ -25,7 +25,7 @@ People who sit in many Teams, Zoom or Meet calls plus in-person meetings and wan
 | Online meeting capture | Microphone + output loopback as **two separate streams** | Works with any meeting app and with speakers or headphones. The source gives "Me" vs "Others" speaker labels with no ML diarization |
 | macOS system audio | Virtual loopback device (BlackHole) chosen as an input | No Python-accessible loopback API. ScreenCaptureKit capture is on the roadmap |
 | Storage | One folder per meeting with JSON, JSONL and Markdown. No database. Audio never stored | Text format, easy backup, readable without the app, privacy |
-| AI | `AIRouter` with Gemini API → Gemini CLI → Claude Code fallback order | Use the user's Google AI plan first and fall back to Claude Code |
+| AI | `AIRouter` with Gemini API → Antigravity CLI (`agy`) → Claude Code fallback order | Use the user's Google AI plan first and fall back to Claude Code |
 | Security | Server bound to 127.0.0.1, Host-header check, custom header on writes, secrets in env only | Transcripts are sensitive and the server must not be reachable from other sites |
 
 ## How it fits together
@@ -35,7 +35,7 @@ mic ─┐                               ┌─> transcript.jsonl (append, live)
      ├─ AudioSource ─> Recognizer ─> LiveSession ─┤
 loop ┘   (thread)     (per source)     (events)   └─> WebSocket ─> web UI (partials, segments, levels)
 
-saved text ─> Analyzer ─> PromptLibrary + AIRouter ─> gemini_api | gemini_cli | claude_code ─> analysis/*.md
+saved text ─> Analyzer ─> PromptLibrary + AIRouter ─> gemini_api | agy | claude_code ─> analysis/*.md
 ```
 
 ## Status

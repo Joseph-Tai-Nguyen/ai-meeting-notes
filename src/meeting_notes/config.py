@@ -59,10 +59,10 @@ class TranscriptionSettings:
 class AISettings:
     # Tried in order; the first available provider wins, the next is the fallback.
     provider_order: list[str] = field(
-        default_factory=lambda: ["gemini_api", "gemini_cli", "claude_code"]
+        default_factory=lambda: ["gemini_api", "agy", "claude_code"]
     )
     gemini_model: str = "gemini-flash-latest"
-    gemini_cli_model: str = ""  # empty -> Gemini CLI default
+    agy_model: str = ""  # empty -> Antigravity CLI default
     claude_model: str = ""  # empty -> Claude Code default
     output_language: str = ""  # empty -> same language as the transcript
     timeout_seconds: int = 600

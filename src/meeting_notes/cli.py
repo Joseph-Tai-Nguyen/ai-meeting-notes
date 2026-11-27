@@ -231,7 +231,7 @@ def build_parser() -> argparse.ArgumentParser:
     a.add_argument("--kind", default="summary", choices=["summary", "action_items", "decisions", "follow_up_email", "speakers", "draft_doc"])
     a.add_argument("--template", default=None)
     a.add_argument("--doc-type", default="")
-    a.add_argument("--provider", default=None, help="gemini_api | gemini_cli | claude_code (default: fallback order)")
+    a.add_argument("--provider", default=None, help="gemini_api | agy | claude_code (default: fallback order)")
     a.set_defaults(func=cmd_analyze)
 
     q = sub.add_parser("ask", help="ask AI about one meeting (--meeting) or all meetings")

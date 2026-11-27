@@ -14,7 +14,7 @@ Instructions for Gemini CLI and Google Antigravity agents in this repository.
   model is installed.
 - This app *calls* Gemini as its primary AI provider, in two ways:
   - `src/meeting_notes/ai/gemini_api.py`: REST `generateContent` with `GEMINI_API_KEY` (stdlib only).
-  - `src/meeting_notes/ai/gemini_cli.py`: `gemini -p ...` with the prompt on stdin, using the
-    user's Google AI plan sign-in.
+  - `src/meeting_notes/ai/antigravity_cli.py`: `agy --input-format stream-json --output-format stream-json`
+    with the prompt on stdin, using the user's Google AI plan sign-in.
   Keep the default model configurable (`AISettings.gemini_model`) and do not hard-code model names elsewhere.
 - Do not write API keys into any file. `.env` is gitignored, and `.env.example` documents the variables.

@@ -5,13 +5,15 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 
+from meeting_notes.ai.antigravity_cli import AntigravityCLIProvider
 from meeting_notes.ai.base import AIError, AIProvider
 from meeting_notes.ai.claude_code import ClaudeCodeProvider
 from meeting_notes.ai.gemini_api import GeminiAPIProvider
-from meeting_notes.ai.gemini_cli import GeminiCLIProvider
 from meeting_notes.config import AISettings
 
 log = logging.getLogger(__name__)
+
+_LEGACY_PROVIDER_ALIASES = {"gemini_cli": "agy"}
 
 
 @dataclass
@@ -24,7 +26,7 @@ class AIResult:
 def build_providers(ai: AISettings) -> dict[str, AIProvider]:
     providers: list[AIProvider] = [
         GeminiAPIProvider(ai.gemini_model, ai.timeout_seconds),
-        GeminiCLIProvider(ai.gemini_cli_model, ai.timeout_seconds),
+        AntigravityCLIProvider(ai.agy_model, ai.timeout_seconds),
         ClaudeCodeProvider(ai.claude_model, ai.timeout_seconds),
     ]
     return {p.name: p for p in providers}
@@ -33,7 +35,12 @@ def build_providers(ai: AISettings) -> dict[str, AIProvider]:
 class AIRouter:
     def __init__(self, providers: dict[str, AIProvider], order: list[str]):
         self.providers = providers
-        self.order = [n for n in order if n in providers] + [n for n in providers if n not in order]
+        normalized: list[str] = []
+        for raw in order:
+            name = _LEGACY_PROVIDER_ALIASES.get(raw, raw) if raw not in providers else raw
+            if name in providers and name not in normalized:
+                normalized.append(name)
+        self.order = normalized + [n for n in providers if n not in normalized]
 
     def status(self) -> list[dict]:
         return [self.providers[n].info() for n in self.order]

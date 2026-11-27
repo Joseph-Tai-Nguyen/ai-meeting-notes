@@ -40,7 +40,7 @@ src/meeting_notes/
   audio/              capture sources (soundcard mic + loopback, wav file, array) and device listing
   transcription/      Engine/Recognizer ABCs, vosk, whisper, macos, windows_sapi, mock, segmenter, LiveSession
   storage/            MeetingStore (files), export/backup/restore, offline search & retrieval
-  ai/                 providers (gemini_api, gemini_cli, claude_code), router, prompts, Analyzer
+  ai/                 providers (gemini_api, agy, claude_code), router, prompts, Analyzer
   prompts/            built-in prompt templates (Markdown); users override in <data>/prompts
   server/api.py       FastAPI REST + WebSocket
   web/                index.html, app.js, styles.css (vanilla JS, no build step)

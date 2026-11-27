@@ -46,7 +46,7 @@ Status legend: ✅ done · 🧪 experimental · 🟡 partial · ⬜ planned
 | A6 | Q&A about one meeting, with timestamps | ✅ |
 | A7 | Q&A across all meetings (keyword retrieval + citations) | ✅ |
 | A8 | Infer who the speakers are | ✅ |
-| A9 | Providers: Gemini API key, Gemini CLI (Google AI plan), Claude Code fallback; order configurable | ✅ |
+| A9 | Providers: Gemini API key, Antigravity CLI (`agy`, Google AI plan), Claude Code fallback; order configurable | ✅ |
 | A10 | Very long meetings: map-reduce condensation | ✅ |
 | A11 | Output language selectable | ✅ |
 | A12 | Streaming AI output in the UI | ⬜ |

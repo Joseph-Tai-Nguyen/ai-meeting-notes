@@ -1,7 +1,9 @@
 import pytest
 
 from conftest import FakeProvider
+from meeting_notes.ai import antigravity_cli
 from meeting_notes.ai.analysis import Analyzer
+from meeting_notes.ai.antigravity_cli import AntigravityCLIProvider
 from meeting_notes.ai.base import AIError
 from meeting_notes.ai.prompts import PromptLibrary, render
 from meeting_notes.ai.router import AIRouter
@@ -89,3 +91,56 @@ def test_templates_and_user_override(store):
     (custom / "retro.md").write_text("<!-- label: Retro -->\n{{context}}\nWhat went well?", encoding="utf-8")
     assert {"name": "retro", "label": "Retro"} in lib.summary_templates()
     assert render("a {{x}} {{missing}}", {"x": "1"}) == "a 1\n"
+
+
+def test_router_maps_legacy_gemini_cli_to_agy():
+    provs = {n: FakeProvider(n) for n in ("gemini_api", "agy", "claude_code")}
+    r = AIRouter(provs, ["gemini_api", "gemini_cli", "claude_code"])
+    assert r.order == ["gemini_api", "agy", "claude_code"]
+
+
+def test_antigravity_cli_provider(monkeypatch):
+    import json
+
+    monkeypatch.setattr("shutil.which", lambda _exe: None)
+    p = AntigravityCLIProvider(model="gemini-4")
+    ok, reason = p.availability()
+    assert not ok and "agy" in reason
+
+    monkeypatch.setattr("shutil.which", lambda _exe: "/usr/local/bin/agy")
+    ok, reason = p.availability()
+    assert ok and "gemini-4" in reason
+
+    captured: list[tuple[list[str], str, int, bool]] = []
+
+    def fake_run_cli(cmd, stdin_text, timeout, check=True):
+        captured.append((cmd, stdin_text, timeout, check))
+        return (
+            '{"event":"init","conversation_id":"c1"}\n'
+            '{"event":"result","result":{"status":"SUCCESS","response":"## Summary\\nDone\\n"}}\n'
+        )
+
+    monkeypatch.setattr(antigravity_cli, "run_cli", fake_run_cli)
+    out = p.generate("transcript text", system="sys")
+    assert out == "## Summary\nDone"
+    cmd, stdin_text, _timeout, check = captured[0]
+    assert cmd[:6] == ["agy", "--input-format", "stream-json", "--output-format", "stream-json", "--disable-slash-commands"]
+    assert "--model" in cmd and "gemini-4" in cmd
+    assert check is False
+    sent = json.loads(stdin_text)
+    assert sent["event"] == "user"
+    assert "sys" in sent["message"]["content"] and "transcript text" in sent["message"]["content"]
+
+    def fail_result(_cmd, _stdin, _timeout, check=True):
+        return '{"event":"result","result":{"status":"ERROR","error":"unauthenticated"}}\n'
+
+    monkeypatch.setattr(antigravity_cli, "run_cli", fail_result)
+    with pytest.raises(AIError, match="run `agy` in a terminal"):
+        p.generate("hi")
+
+    def fail_cli(_cmd, _stdin, _timeout, check=True):
+        raise AIError("agy exited with 1: login required")
+
+    monkeypatch.setattr(antigravity_cli, "run_cli", fail_cli)
+    with pytest.raises(AIError, match="run `agy` in a terminal"):
+        p.generate("hi")
